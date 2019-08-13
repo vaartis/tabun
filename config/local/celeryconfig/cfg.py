@@ -1,5 +1,5 @@
-BROKER_URL = 'redis://127.0.0.1:6379/5'
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/6'
+BROKER_URL = 'redis://redis:6379/5'
+CELERY_RESULT_BACKEND = 'redis://redis:6379/6'
 CELERY_IMPORTS = ("tasks",)
 
 CELERY_TASK_SERIALIZER = 'json'

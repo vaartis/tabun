@@ -1,0 +1,11 @@
+FROM python:3.7-alpine
+
+RUN pip install --no-cache-dir celery[redis] beautifulsoup4 elasticsearch
+
+COPY celery_tasks/ /app/
+COPY config/production/celeryconfig/ /config/
+
+ENV PYTHONPATH=/config:/app
+ENV CELERY_CONFIG_MODULE=cfg
+
+CMD celery worker --pool=solo

@@ -1,0 +1,66 @@
+version: "2"
+services:
+  mysql:
+    command: --default-authentication-plugin=mysql_native_password
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.mysql
+    environment:
+      MYSQL_USER: tabun
+      MYSQL_PASSWORD: tabun
+      MYSQL_DATABASE: tabun
+      MYSQL_ROOT_PASSWORD: tabun
+
+  redis:
+    image: redis:5-alpine
+      
+  celery:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.celery
+    environment:
+      CELERY_MAILER_HOST: mail
+      CELERY_MAILER_PORT: 25
+    depends_on:
+      - redis
+      
+  mail:
+    image: namshi/smtp
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:5.6.16
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
+    environment:
+      discovery.type: single-node
+    
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.backend
+    volumes:
+      - static:/static/
+    depends_on:
+      - redis
+      - celery
+      - mysql
+      - mail
+      - elasticsearch
+    
+  nginx:
+    depends_on:
+      - backend
+    image: nginx:1.17-alpine
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.nginx
+    ports:
+      - "8000:8000"
+    volumes:
+      - static:/work/static    
+      
+volumes:
+  static:
+  mysql_storage:

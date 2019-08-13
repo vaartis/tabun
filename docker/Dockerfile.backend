@@ -1,0 +1,66 @@
+FROM alpine:3.8 AS frontend
+
+RUN apk add nodejs npm gettext
+
+COPY .babelrc /work/
+COPY webpack.config.babel.js /work/
+COPY package.json /work/
+COPY frontend/ /work/frontend
+COPY templates/ /work/templates
+
+WORKDIR /work/templates/skin/synio/locale/ru_RU/LC_MESSAGES
+
+RUN npm i
+
+# Compile locales
+RUN msgcat -n -F -o messages.po parts/* &&\
+    msgfmt messages.po &&\
+    /work/node_modules/po2json/bin/po2json -f jed1.x messages.po messages.json &&\
+    rm messages.po
+
+WORKDIR /work
+
+ENV ENV_MODE=local
+
+RUN if [ "$ENV_MODE" = "production" ]; then\
+      NODE_ENV=production ./node_modules/webpack/bin/webpack.js --color --progress -p;\
+    else\
+      NODE_ENV=development ./node_modules/webpack/bin/webpack.js --color --progress -p;\
+    fi
+
+FROM ubuntu:bionic
+
+ENV ENV_MODE=local
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y tzdata &&\
+    ln -fs /usr/share/zoneinfo/Europe/Moscow /etc/localtime &&\
+    dpkg-reconfigure --frontend noninteractive tzdata
+
+RUN apt-get install -yy php php-fpm php-mysql php-redis php-gettext php-json php-curl\
+    php-imagick php-bcmath php-mbstring imagemagick git composer
+
+COPY config/${ENV_MODE}/php /etc/php/7.2/fpm
+
+WORKDIR /work
+
+COPY composer.json composer.lock /work/
+RUN composer install -o
+
+COPY config/${ENV_MODE}/ config/
+
+EXPOSE 9510
+VOLUME /log
+RUN useradd -d /home/tabun tabun
+
+COPY . /work
+COPY --from=frontend /work/static/ /static/
+COPY --from=frontend /work/templates /work/templates/
+
+ENV COMPOSER_DIR=/work
+
+RUN git describe --always > /work/backend.version
+
+VOLUME /storage
+
+CMD php-fpm7.2 -eFO

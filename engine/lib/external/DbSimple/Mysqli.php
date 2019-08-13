@@ -66,7 +66,8 @@ class DbSimple_Mysqli extends DbSimple_Database
 				$dsn['port'] ?? null
 			);
 			if ($this->link === false) {
-			    dd(mysqli_connect_error());
+			    var_dump(mysqli_connect_error());
+                die();
             }
 
 		} else {

@@ -54,8 +54,8 @@ $config['path']['offset_request_url'] = 0;                                  // �
  * Настройки шаблонизатора Smarty
  */
 $config['path']['smarty']['template'] = '___path.root.server___/templates/skin/___view.skin___';
-$config['path']['smarty']['compiled'] = '/var/smarty/compiled';
-$config['path']['smarty']['cache'] = '/var/smarty/cache';
+$config['path']['smarty']['compiled'] = '/tmp/smarty/compiled';
+$config['path']['smarty']['cache'] = '/tmp/smarty/cache';
 $config['path']['smarty']['plug'] = '___path.root.engine___/modules/viewer/plugs';
 $config['smarty']['compile_check'] = true; // Проверять или нет файлы шаблона на изменения перед компиляцией, false может значительно увеличить быстродействие, но потребует ручного удаления кеша при изменения шаблона
 /**
@@ -74,7 +74,7 @@ $config['sys']['session']['path'] = '___sys.cookie.path___';    // путь се
 /**
  * Настройки почтовых уведомлений
  */
-$config['sys']['mail']['from_email'] = 'noreply@example.com';    // Мыло с которого отправляются все уведомления
+$config['sys']['mail']['from_email'] = 'noreply@tabun.everypony.ru';    // Мыло с которого отправляются все уведомления
 $config['sys']['mail']['from_name'] = 'PonyMail';              // Имя с которого отправляются все уведомления
 $config['sys']['mail']['include_comment'] = true;                   // Включает в уведомление о новых комментах текст коммента
 $config['sys']['mail']['include_talk'] = true;                      // Включает в уведомление о новых личных сообщениях текст сообщения
@@ -85,7 +85,7 @@ $config['sys']['mail']['include_talk'] = true;                      // Вклю�
 $config['sys']['cache']['use'] = true;              // использовать кеширование или нет
 $config['sys']['cache']['servers'] = [
     [
-        'host' => '127.0.0.1',
+        'host' => 'redis',
         'port' => 6379,
         'dbindex' => 11,
     ],
@@ -182,12 +182,12 @@ $config['module']['autoLoad'] = ['Hook', 'Cache', 'Security', 'Session', 'Lang',
 /**
  * Настройка базы данных
  */
-$config['db']['params']['host'] = 'localhost';
+$config['db']['params']['host'] = 'mysql';
 $config['db']['params']['port'] = '3306';
-$config['db']['params']['user'] = '';
-$config['db']['params']['pass'] = '';
+$config['db']['params']['user'] = 'tabun';
+$config['db']['params']['pass'] = 'tabun';
 $config['db']['params']['type'] = 'mysqli';
-$config['db']['params']['dbname'] = '';
+$config['db']['params']['dbname'] = 'tabun';
 /**
  * Настройка таблиц базы данных
  */
@@ -258,10 +258,10 @@ $config['flags'] = [];
 /**
  * Настройки Celery
  */
-$config['sys']['celery']['host'] = 'localhost';
+$config['sys']['celery']['host'] = 'redis';
 $config['sys']['celery']['login'] = '';
 $config['sys']['celery']['password'] = '';
-$config['sys']['celery']['db'] = 5;
+$config['sys']['celery']['db'] = 1;
 $config['sys']['celery']['exchange'] = 'celery';
 $config['sys']['celery']['binding'] = 'celery';
 $config['sys']['celery']['port'] = 6379;
@@ -271,7 +271,7 @@ $config['sys']['celery']['backend'] = 'redis';
  * Настройки Elasticsearch
  */
 $config['sys']['elastic']['hosts'] = [
-    "0.0.0.0"
+    "elasticsearch"
 ];
 
 /**
@@ -279,7 +279,7 @@ $config['sys']['elastic']['hosts'] = [
  */
 $config['misc']['ga'] = '';
 $config['misc']['ver']['front'] = file_get_contents("/static/frontend.version");
-$config['misc']['ver']['code'] = file_get_contents("/app/backend.version") ?: "dev"; // Just for convenience
+$config['misc']['ver']['code'] = file_get_contents("/work/backend.version") ?: "dev"; // Just for convenience
 $config['misc']['debug'] = false;
 
 // Отключение подсчёта числа страниц для первых страниц ленты комментариев для их ускорения.
